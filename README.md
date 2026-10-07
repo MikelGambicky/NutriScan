@@ -2,21 +2,40 @@
 
 An Android app that identifies food from a photo and returns calorie and macronutrient estimates. Built in Kotlin as my final-year BSc Computer Science project at the University of West London (2026).
 
-Point the camera at a meal → NutriScan identifies the food, filters out non-food noise (plates, cutlery, hands), and returns portion-scaled calories, protein, carbs, and fat. Scans are saved to a local history with daily summaries.
+Point the camera at a meal → NutriScan identifies the food, filters out non-food noise (plates, cutlery, hands), and returns portion-scaled calories, protein, carbs and fat. Scans are saved to a local history with daily summaries.
+
+## Demo
+
+<!-- [FILL IN] Add 2–3 screenshots or a short GIF of scan → result → history.
+     Put the files in a /docs or /screenshots folder and link them here, e.g.:
+     ![Scan result](docs/scan-result.png) -->
 
 ## How it works
 
 1. **Image classification** — the photo is classified using the Clarifai image recognition API.
-2. **Three-layer validation pipeline** (custom) — raw predictions are filtered through:
+2. **Three-layer validation pipeline (custom)** — raw predictions are filtered through:
    - an edible-label whitelist (supported food vocabulary)
    - a non-edible ignore list (plates, cutlery, packaging, hands)
    - a confidence threshold — low-confidence results return the top 3 candidates for user correction instead of silently guessing
 3. **Nutrition mapping** — the confirmed label is matched against a USDA-derived nutrition dataset and scaled by portion size (per-100g baseline).
-4. **History & summaries** — scans persist in a local Room database, with daily calorie/macro summaries.
+4. **History & summaries** — scans persist in a local Room database, with daily calorie and macro summaries.
 
-## Research background
+## Evaluation
 
-The project's research phase evaluated a fine-tuned MobileNetV2 model for on-device classification, achieving **73.3% accuracy** on the test set (model files are included in `app/src/main/assets` for reference). The production build uses a cloud vision API for broader food coverage, with the custom validation pipeline handling precision. Usability testing with real users scored **76.9 on the System Usability Scale**, above the industry benchmark of 68.
+| Area | Result |
+|---|---|
+| Usability (System Usability Scale) | 76.9, above the industry benchmark of 68 |
+| Fine-tuned MobileNetV2 (research phase) | 73.3% accuracy on the test set |
+
+### Research background
+
+The research phase evaluated a MobileNetV2 model for on-device classification (TensorFlow Lite), fine-tuned on Food-101 plus my own photos. The model files are included in `app/src/main/assets` for reference only; **they are not used in the production build**. The production build uses a cloud vision API for broader food coverage, with the custom validation pipeline handling precision.
+
+## Limitations
+
+- Classification depends on the Clarifai API, so an internet connection is required and photos are sent to Clarifai's servers.
+- Recognition is limited to the supported food vocabulary.
+- Nutrition values are estimates based on per-100g USDA-derived data scaled by portion, not exact measurements.
 
 ## Tech stack
 
@@ -28,12 +47,14 @@ The project's research phase evaluated a fine-tuned MobileNetV2 model for on-dev
 
 ## Running the project
 
-1. Clone the repo and open in Android Studio.
-2. Get a free API key from [clarifai.com](https://www.clarifai.com).
+1. Clone the repo and open it in Android Studio.
+2. Get a free API key from [clarifai.com](https://www.clarifai.com/).
 3. Add this line to your `local.properties` file (created automatically by Android Studio, never committed to Git):
+
    ```
    CLARIFAI_API_KEY=your_key_here
    ```
+
 4. Build and run on a device or emulator (API 26+).
 
 ## Project structure
